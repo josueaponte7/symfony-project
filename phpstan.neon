@@ -1,0 +1,36 @@
+parameters:
+    level: 1
+    paths:
+        - src
+    excludePaths:
+        - %rootDir%/src/Migrations
+    symfony:
+        container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
+    doctrine:
+        objectManagerLoader: build/phpstan/doctrine-orm-bootstrap.php
+        repositoryClass: Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository
+    banned_code:
+        nodes:
+            -
+                type: Stmt_Echo
+                functions: null
+            -
+                type: Expr_Eval
+                functions: null
+            -
+                type: Expr_Exit
+                functions: null
+            -
+                type: Expr_FuncCall
+                functions:
+                    - dd
+                    - debug_backtrace
+                    - dump
+                    - exec
+                    - passthru
+                    - phpinfo
+                    - print_r
+                    - proc_open
+                    - shell_exec
+                    - system
+                    - var_dump
