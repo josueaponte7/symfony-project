@@ -1,4 +1,5 @@
 <?php
+
 use PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer;
 use PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer;
 use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
@@ -19,15 +20,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(NativeFunctionInvocationFixer::class)
         ->call('configure', [[
             'scope' => 'namespaced',
-            'include' => ['@compiler_optimized']
+            'include' => ['@compiler_optimized'],
         ]]);
     $services->set(NoUnusedImportsFixer::class);
     $parameters = $containerConfigurator->parameters();
-    $parameters->set(Option::PATHS, [__DIR__ . '/src']);
+    $parameters->set(Option::PATHS, [__DIR__.'/src']);
 
     $parameters->set(Option::SKIP, [
         // skip paths with legacy code
-        __DIR__ . '/src/Migrations',
-        __DIR__ . '/tests'
+        __DIR__.'/src/Migrations',
+        __DIR__.'/tests',
     ]);
 };

@@ -99,7 +99,7 @@
             "vendor/bin/phpstan analyze --ansi --no-interaction"
         ],
         "php-fixer": [
-            "php-cs-fixer fix src --rules=@Symfony,-@PSR1,-blank_line_before_statement"
+            "php-cs-fixer fix  --rules=@Symfony,-@PSR1,-blank_line_before_statement"
         ],
         "rector": [
             "vendor/bin/rector process"
