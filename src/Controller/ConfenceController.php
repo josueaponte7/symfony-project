@@ -2,22 +2,36 @@
 
 namespace App\Controller;
 
+use App\Entity\Conference;
+use App\Repository\CommentRepository;
+use App\Repository\ConferenceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ConfenceController extends AbstractController
 {
-    #[Route('/hello/{name}', name: 'app_confence')]
-    public function index(string $name): Response
+    #[Route('/', name: 'conference')]
+    public function index(ConferenceRepository $conferenceRepository)
     {
-        $greet = '';
-        if ('' !== $name && '0' !== $name) {
-            $greet = sprintf('<h1>Hello %s</h1>', htmlspecialchars($name));
-        }
+        $conferences = $conferenceRepository->findAll();
 
         return $this->render('confence/index.html.twig', [
-            'name' => $name,
+            'conferences' => $conferences,
+        ]);
+    }
+
+    #[Route('/conference/{id}', name: 'conference_show')]
+    public function show(Request $request, CommentRepository $commentRepository, Conference $conference)
+    {
+        $offset = max(0, $request->query->getInt('offset', 0));
+        $paginator = $commentRepository->getCommentsPaginators($conference, $offset);
+
+        return $this->render('confence/show.html.twig', [
+            'conference' => $conference,
+            'comments' => $paginator,
+            'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
+            'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
         ]);
     }
 }
