@@ -7,15 +7,12 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class HttpClientUtils implements HttpClientInterface
 {
-    
     public function __construct(private SymfonyHttpClientInterface $httpClient)
     {
-    
     }
 
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         return $this->httpClient->request($method, $url, $options);
     }
-
 }

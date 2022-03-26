@@ -18,7 +18,7 @@
     </style>
 
     <div class="example-wrapper">
-        <h2>{{ conference }} Conference</h2>
+        <h2>{{ conference.pais}} {{ conference }} Conference</h2>
         <div>
             <a href="{{ path('conference_del', {id: conference.id}) }}">Delete Conference</a>
         </div>
@@ -51,5 +51,7 @@
         <div>
             <a href="{{ path('comment_add', { 'slug': conference.slug }) }}">Add Comment</a>
         </div>
+        <h2>Add your own feedback</h2>
+        {{ form(comment_form) }}
     </div>
 {% endblock %}

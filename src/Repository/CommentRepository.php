@@ -42,6 +42,16 @@ class CommentRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
+    public function persist(Comment $entity): void
+    {
+        $this->_em->persist($entity);
+    }
+
+    public function save(): void
+    {
+        $this->_em->flush();
+    }
+
     public function add(Comment $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);

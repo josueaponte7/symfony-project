@@ -4,11 +4,13 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\Conference;
+use App\Form\CommentFormType;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use App\Service\Utils\GetCities;
 use App\Service\Utils\GetDummiesPostByUser;
 use App\Service\Utils\GetDummiesUser;
+use App\Service\Utils\SpamChecker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -28,8 +30,29 @@ class ConfenceController extends AbstractController
     }
 
     #[Route('/conference/{slug}', name: 'conference_show')]
-    public function show(string $slug, Request $request, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository)
+    public function show(string $slug, Request $request, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository, Conference $conferencex, SpamChecker $spamChecker)
     {
+        $comment = new Comment();
+        $form = $this->createForm(CommentFormType::class, $comment);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $conferencey = $conferenceRepository->findBy(['slug' => $slug], [], 1, 0)[0];
+            $comment->setConference($conferencey);
+            $context = [
+                'user_ip', $request->getClientIp(),
+                'user_agent' => $request->headers->get('user-agent'),
+                'referrer' => $request->headers->get('ferrer'),
+                'permalink' => $request->getUri(),
+            ];
+            $commentRepository->persist($comment);
+            if (2 === $spamChecker->getSpamScore($comment, $context)) {
+                throw new \RuntimeException('Blak spam, go away');
+            }
+            
+            $commentRepository->save();
+
+            return $this->redirectToRoute('conference_show', ['slug' => $conferencex->getSlug()]);
+        }
         $conference = $conferenceRepository->findBy(['slug' => $slug], [], 1, 0)[0];
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentsPaginators($conference, $offset);
@@ -38,7 +61,8 @@ class ConfenceController extends AbstractController
             'conference' => $conference,
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
-            'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'next' => min(\count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'comment_form' => $form->createView(),
         ]);
     }
 
