@@ -19,10 +19,13 @@
 
     <div class="example-wrapper">
         <h2>Conferences</h2>
+        <div>There are {{ conferences|length }} conferences</div>
         {% for conference in conferences %}
+            <h3>Country: {{ conference.pais }}</h3>
             <h4>{{ conference }}</h4>
             <p>
-                <a href="{{ path('conference_show', {'id': conference.id}) }}">View</a>
+                <a href="{{ path('conference_show', {'slug': conference.slug}) }}">View</a>
+                <a href="{{ path('conference_del', {'id': conference.id}) }}">Delete</a>
             </p>
         {% endfor %}
     </div>

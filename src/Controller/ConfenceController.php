@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Conference;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
+use App\Service\Utils\GetCities;
+use App\Service\Utils\GetDummiesPostByUser;
+use App\Service\Utils\GetDummiesUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -12,10 +16,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ConfenceController extends AbstractController
 {
-    #[Route('/', name: 'conference')]
+    #[Route('/', name: 'conference', methods: ['GET'])]
     public function index(ConferenceRepository $conferenceRepository, SessionInterface $session)
     {
-        $session->set('saludo', 'Hola Mundo');
+        echo $session->get('city');
         $conferences = $conferenceRepository->findAll();
 
         return $this->render('confence/index.html.twig', [
@@ -23,10 +27,10 @@ class ConfenceController extends AbstractController
         ]);
     }
 
-    #[Route('/conference/{id}', name: 'conference_show')]
-    public function show(Request $request, CommentRepository $commentRepository, Conference $conference, SessionInterface $session)
+    #[Route('/conference/{slug}', name: 'conference_show')]
+    public function show(string $slug, Request $request, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository)
     {
-        echo $session->get('saludo');
+        $conference = $conferenceRepository->findBy(['slug' => $slug], [], 1, 0)[0];
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentsPaginators($conference, $offset);
 
@@ -36,5 +40,64 @@ class ConfenceController extends AbstractController
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
             'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
         ]);
+    }
+
+    #[Route('/conference_add', name: 'conference_add', methods: ['GET'])]
+    public function create(Request $request, ConferenceRepository $conferenceRepository, GetCities $getCities, SessionInterface $session)
+    {
+        $city = ($getCities)('capital');
+        $year = Conference::yearRandom();
+        $session->set('city', $city->capital);
+        $conference = new Conference();
+        $conference->setPais($city->name);
+        $conference->setCity($city->capital);
+        $conference->setYear($year);
+        $conference->setIsInternational(true);
+        $conferenceRepository->add($conference);
+
+        return $this->redirectToRoute('conference');
+    }
+
+    #[Route('/conference_del/{id}', name: 'conference_del', methods: ['GET'])]
+    public function deleteConference(Conference $conference, ConferenceRepository $conferenceRepository)
+    {
+        $conferenceRepository->remove($conference);
+
+        return $this->redirectToRoute('conference');
+    }
+
+    /**
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \JsonException
+     */
+    #[Route('/comment_add/{slug}', name: 'comment_add', methods: ['GET'])]
+    public function createComment(
+        string $slug,
+        ConferenceRepository $conferenceRepository,
+        CommentRepository $commentRepository,
+        GetDummiesUser $getDummiesUser,
+        GetDummiesPostByUser $getDummiesPostByUser
+    ) {
+        $conference = $conferenceRepository->findBy(['slug' => $slug], [], 1, 0)[0];
+        $post = ($getDummiesPostByUser)('posts');
+        $user = (object) ($getDummiesUser)($post->userId);
+        $comment = new Comment();
+        $comment->setConference($conference);
+        $comment->setAuthor($user->name);
+        $comment->setEmail($user->email);
+        $comment->setText($post->body);
+        $commentRepository->add($comment);
+
+        return $this->redirectToRoute('conference_show', ['slug' => $slug]);
+    }
+
+    #[Route('/comment_del/{id}', name: 'comment_del', methods: ['GET'])]
+    public function deleteComment(Comment $comment, CommentRepository $commentRepository, SessionInterface $session)
+    {
+        $slug = $comment->getConference()->getSlug();
+        $commentRepository->remove($comment);
+
+        return $this->redirectToRoute('conference_show', ['slug' => $slug]);
     }
 }
