@@ -1,4 +1,6 @@
-<?php // dev.decrypt.private on Sat, 26 Mar 2022 17:05:43 +0100
+<?php
+
+// dev.decrypt.private on Sat, 26 Mar 2022 17:05:43 +0100
 
 // SYMFONY_DECRYPTION_SECRET=JWq1R0dV9EW+YVSHvq83wC6haH+iDo/FZTu9282XreiRa5VvtD7brtXNWUphx6NNnd18YvjnvAIDrnUqRRbFPw==
 return "\x25j\xB5GGU\xF4E\xBEaT\x87\xBE\xAF7\xC0.\xA1h\x7F\xA2\x0E\x8F\xC5e\x3B\xBD\xDB\xCD\x97\xAD\xE8\x91k\x95o\xB4\x3E\xDB\xAE\xD5\xCDYJa\xC7\xA3M\x9D\xDD\x7Cb\xF8\xE7\xBC\x02\x03\xAEu\x2AE\x16\xC5\x3F";

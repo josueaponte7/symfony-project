@@ -21,6 +21,7 @@ class GetDummiesUser
         }
         $content = $response->getContent();
         $dummies = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+
         return new GetDummiesResponse($dummies->id, $dummies->name, $dummies->email);
     }
 }

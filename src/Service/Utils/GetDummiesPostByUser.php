@@ -24,6 +24,7 @@ class GetDummiesPostByUser
         $json = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
         $keyPost = array_rand($json, 1);
         $post = $json[$keyPost];
+
         return new GetDummiesByUserResponse($post->user_id, $post->title, $post->body);
     }
 }

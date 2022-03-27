@@ -19,10 +19,10 @@
 
     <div class="example-wrapper">
         <h2>Conferences</h2>
-        <div>There are {{ conferences|length }} conferences</div>
+        <h4>There are {{ conferences|length }} conferences</h4>
         {% for conference in conferences %}
             <h3>Country: {{ conference.pais }}</h3>
-            <h4>{{ conference }}</h4>
+            <h2>{{ conference }}</h2>
             <p>
                 <a href="{{ path('conference_show', {'slug': conference.slug}) }}">View</a>
                 <a href="{{ path('conference_del', {'id': conference.id}) }}">Delete</a>

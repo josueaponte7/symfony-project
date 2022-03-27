@@ -48,7 +48,7 @@ class ConfenceController extends AbstractController
             if (2 === $spamChecker->getSpamScore($comment, $context)) {
                 throw new \RuntimeException('Blak spam, go away');
             }
-            
+
             $commentRepository->save();
 
             return $this->redirectToRoute('conference_show', ['slug' => $conferencex->getSlug()]);
