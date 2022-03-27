@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Conference;
 use App\Form\CommentFormType;
+use App\Message\CommentMessage;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use App\Service\Utils\GetCities;
@@ -14,10 +15,15 @@ use App\Service\Utils\SpamChecker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ConfenceController extends AbstractController
 {
+    public function __construct(private MessageBusInterface $bus)
+    {
+    }
+
     #[Route('/', name: 'conference', methods: ['GET'])]
     public function index(ConferenceRepository $conferenceRepository, SessionInterface $session)
     {
@@ -38,18 +44,18 @@ class ConfenceController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $conferencey = $conferenceRepository->findBy(['slug' => $slug], [], 1, 0)[0];
             $comment->setConference($conferencey);
+
+            $commentRepository->persist($comment);
+            $commentRepository->save();
+
             $context = [
                 'user_ip', $request->getClientIp(),
                 'user_agent' => $request->headers->get('user-agent'),
                 'referrer' => $request->headers->get('ferrer'),
                 'permalink' => $request->getUri(),
             ];
-            $commentRepository->persist($comment);
-            if (2 === $spamChecker->getSpamScore($comment, $context)) {
-                throw new \RuntimeException('Blak spam, go away');
-            }
 
-            $commentRepository->save();
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
 
             return $this->redirectToRoute('conference_show', ['slug' => $conferencex->getSlug()]);
         }

@@ -33,6 +33,7 @@
                 <h4>{{ comment.author }}</h4>
                 <smal>{{ comment.createdAt|format_datetime('medium', 'short') }}</smal>
                 <p>{{ comment.text }}</p>
+                <p>State comment {{ comment.state }}</p>
                 <p>
                     <a href="{{ path('comment_del', {id: comment.id}) }}">Delete Comment</a>
                 </p>
