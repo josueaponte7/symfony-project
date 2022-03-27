@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ConferencecontrollerTest extends WebTestCase
+class ConferenceControllerTest extends WebTestCase
 {
     public function testSomething(): void
     {
@@ -12,6 +12,21 @@ class ConferencecontrollerTest extends WebTestCase
         $client->request('GET', '/');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2', 'Conferences');
+    }
+
+    public function testCommentSubmission()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/conference/amsterdam-2019');
+        $client->submitForm('Submit', [
+            'comment_form[author]' => 'Fabien',
+            'comment_form[text]' => 'Some feedback from an automated functional test',
+            'comment_form[email]' => 'me@automat.ed',
+            'comment_form[photoFilename]' => dirname(__DIR__, 2).'/public/images/under-construction.gif',
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('div:contains("There are 2 comments")');
     }
 
     public function testConferencePage()

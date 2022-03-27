@@ -117,11 +117,12 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "6.0.*"
         }
     },
     "require-dev": {
+        "dama/doctrine-test-bundle": "^6",
         "ekino/phpstan-banned-code": "^1.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.5",

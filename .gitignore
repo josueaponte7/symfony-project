@@ -34,3 +34,4 @@ tools/
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+/.ecs_cache/
