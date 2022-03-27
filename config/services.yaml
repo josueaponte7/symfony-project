@@ -1,4 +1,11 @@
 parameters:
+  default_admin_email: admin@example.com
+  
+  default_domain: '127.0.0.1'
+  default_scheme: 'http'
+
+  router.request_context.host: '%env(default:default_domain:SYMFONY_DEFAULT_ROUTE_HOST)%'
+  router.request_context.scheme: '%env(default:default_scheme:SYMFONY_DEFAULT_ROUTE_SCHEME)%'
 
 services:
   _defaults:
@@ -6,6 +13,8 @@ services:
     autoconfigure: true
     bind:
       $akismetkey: '%env(AKISMET_KEY)%'
+      $adminEmail: "%env(string:default:default_admin_email:ADMIN_EMAIL)%"
+
   App\:
     resource: '../src/'
     exclude:
