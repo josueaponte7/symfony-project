@@ -24,8 +24,9 @@
             <h3>Country: {{ conference.pais }}</h3>
             <h2>{{ conference }}</h2>
             <p>
-                <a href="{{ path('conference_show', {'slug': conference.slug}) }}">View</a>
-                <a href="{{ path('conference_del', {'id': conference.id}) }}">Delete</a>
+                <a class="btn btn-primary"  href="{{ path('conference_show', {'slug': conference.slug}) }}">View</a>
+                <a class="btn btn-danger" href="{{ path('conference_del', {'id': conference.id}) }}">Delete</a>
+                <a class="btn btn-warning" href="{{ path('conference_view', {'slug': conference.slug}) }}">View All</a>
             </p>
         {% endfor %}
     </div>

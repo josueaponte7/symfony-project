@@ -12,6 +12,8 @@ services:
     autowire: true
     autoconfigure: true
     bind:
+      $photoDir: "%kernel.project_dir%/public/uploads/photos"
+      $projectDir: "%kernel.project_dir%"
       $akismetkey: '%env(AKISMET_KEY)%'
       $adminEmail: "%env(string:default:default_admin_email:ADMIN_EMAIL)%"
 

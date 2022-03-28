@@ -35,3 +35,4 @@ tools/
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 /.ecs_cache/
+/public/uploads
