@@ -18,6 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Notifier\ChatterInterface;
+use Symfony\Component\Notifier\Message\ChatMessage;
+use Symfony\Component\Notifier\Notification\Notification;
+use Symfony\Component\Notifier\NotifierInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ConfenceController extends AbstractController
@@ -58,7 +62,7 @@ class ConfenceController extends AbstractController
     }
 
     #[Route('/conference/{slug}', name: 'conference_show')]
-    public function show(string $slug, Request $request, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository, Conference $conferencex, string $photoDir, MenuDummy $menuDummy)
+    public function show(string $slug, Request $request, ChatterInterface $chatter, CommentRepository $commentRepository, NotifierInterface $notifier, ConferenceRepository $conferenceRepository, Conference $conferencex, string $photoDir, MenuDummy $menuDummy)
     {
         $comment = new Comment();
         $form = $this->createForm(CommentFormType::class, $comment);
@@ -91,9 +95,19 @@ class ConfenceController extends AbstractController
             ];
 
             $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
+            $notifier->send(new Notification('Thank you for the feedback; your comment will be posted after moderation.', ['browser']));
+
+            $message = (new ChatMessage('You got a new invoice for 15 EUR.'))->transport('slack');
+
+            $sentMessage = $chatter->send($message);
 
             return $this->redirectToRoute('conference_show', ['slug' => $conferencex->getSlug()]);
         }
+
+        if ($form->isSubmitted()) {
+            $notifier->send(new Notification('Can you check your submission? There are some problems with it.', ['browser']));
+        }
+
         $conference = $conferenceRepository->findBy(['slug' => $slug], [], 1, 0)[0];
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentsPaginators($conference, $offset);

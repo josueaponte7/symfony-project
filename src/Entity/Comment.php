@@ -5,15 +5,23 @@ namespace App\Entity;
 use App\Repository\CommentRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
+#[ApiResource(
+    collectionOperations: ['get' => ['normalization_context' => ['groups' => 'conference:list']]],
+    itemOperations: ['get' => ['normalization_context' => ['groups' => 'conference:item']]],
+    order: ['year' => 'DESC', 'city' => 'ASC'],
+    paginationEnabled: false,
+)]
 class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['conference:list', 'conference:item'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
